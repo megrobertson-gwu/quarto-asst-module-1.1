@@ -1,0 +1,72 @@
+---
+title: "Module-1.1"
+date: May 29, 2025
+author: Megan Robertson
+format: html
+---
+```{r}
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+```
+
+
+```{r}
+# Load packages
+library(readr)
+library(dplyr)
+
+# Read data from csv file into an object called "wb_data_messy"
+wb_data_messy <- read_csv("data/messy_wb_data.csv")
+
+# View the data
+glimpse(wb_data_messy)
+```
+
+```{r}
+# Load tidyr
+library(tidyr)
+
+# Reshape the data
+wb_data <- wb_data_messy |> #take wb_data_messy, and put it in wb_data, but first...
+  pivot_longer( # pivot the data from wide to long form
+    
+    cols = `1975 [YR1975]`: `2024 [YR2024]`, # columns to pivot
+    names_to = "year", # name the first column "year"
+    values_to = "flfp" # name the second column "flfp"
+    )
+# View the data
+glimpse(wb_data)
+```
+```{r}
+# Fix year and flfp - flfp means female labor force participation
+wb_data <- wb_data |> #replace wb_data with a modified version of the dataframe
+  mutate(year = substring(year, 1, 4)) |> # truncate year (keep the first four characters)
+  mutate_at(c("year", "flfp"), as.numeric) # change year and flfp to numeric, currently it's chr which is character. it should be numeric.
+
+# hurray, let's view the data! 😀
+glimpse(wb_data)
+
+# We got an error that NA's were introduced, but that seems okay for now and we can clean that up later.
+```
+```{r}
+# janitor package and and clean_names() will help us remove spaces from the remaining vairables and convert them from title case to snake case. 🐍
+
+# as a final step, we can export clean data to a new .csv file 🧼
+
+# load janitor 
+library(janitor)
+
+# Apply clean_names() to wb_data, store in new data frame called wb_data_clean
+wb_data_clean <- wb_data |>
+  clean_names()
+
+# write wb_data_clean to a csv fire
+write_csv(wb_data_clean, "data/wb_data_clean.csv")
+
+# view the data
+glimpse(wb_data_clean)
+```
+```{r}
+pkg_list <- c("wbstats", "countrycode") # create a list of packages
+install.packages(pkg_list) # install the packages
+```
+
